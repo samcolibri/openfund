@@ -23,6 +23,28 @@ python3.12 scripts/refresh.py        # re-pulls prices/technicals from Yahoo Fin
 - To add/remove stocks: edit `data/fundamentals.json` (copy an existing entry, fill from `screener.in/company/SYMBOL/consolidated/`), rerun refresh.
 - NIFTY 500 universe list: `https://www.niftyindices.com/IndexConstituent/ind_nifty500list.csv` (needs a browser User-Agent header).
 
+## v3 — Long/Short board + Budget thesis (53 stocks)
+
+The universe now spans 53 NSE names: the original 20 value picks + 30 Union-Budget-beneficiary
+stocks (defence, power/grid, semis, rail, shipbuilding, nuclear, biopharma, water, minerals) + 3
+structural shorts. Two new engines sit on top of IVQM:
+
+- **LONG score** = 40% IVQM + 25% policy tailwind + 15% geopolitics + 20% smart-money flow,
+  then a hard P/E haircut (×0.70 above 100x) so a great theme can't rescue a terrible price.
+- **SHORT score** = broken trend + expensive + no policy + money leaving + earnings/governance penalty.
+- **Scenario analysis** — every stock carries a probability-weighted bull/base/bear with an expected
+  value, tied to its blended score (Goldman-desk style; a single point target is a lie).
+- **Budget thesis** — the FY23-27 build-the-country workflow, 10 themes ranked by mid-2026 geopolitics
+  (Defence 9, Nuclear 9 post-SHANTI-Act, Power/Grid 8, Biopharma 8, Critical Minerals 8 … IT 3 headwind).
+
+Top 10 Long (2026-07-13): NATIONALUM, PFC, NMDC, GESHIP, POWERGRID, BEL, HAL, KPIL, COALINDIA, CHENNPETRO.
+Top 5 Short/Avoid: RVNL, COCHINSHIP, TRENT, BDL, MAZDOCK. Several budget darlings (MTAR 214x PE,
+Biocon 172x, CG Power 118x) are deliberately NOT longs — the valuation guard and short board catch them.
+
+Dashboard views: 3D radar · 🏆 Rank Table · 📐 The Math · 📋 Full Report · 🏦 Banker Checklist ·
+💰 Calculator · ⚖️ Long/Short Board · 🇮🇳 Budget Thesis. All data from screener.in (fundamentals,
+hand-verified) + Yahoo Finance (technicals) + dated 2026 news/geopolitics research.
+
 ## Methodology — IVQM composite (0–100)
 
 Weights: **Value 30 · Quality 30 · Momentum 25 · Safety 15** — implemented in `scripts/refresh.py`.

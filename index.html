@@ -148,6 +148,49 @@
   #calc-out .cagr{font-family:var(--mono);color:var(--gold);font-weight:700}
   #calc-chart{background:rgba(0,0,0,.25);border-radius:10px;margin-top:14px}
 
+  /* Long/Short board */
+  #lsoverlay,#budgetoverlay{position:fixed;inset:0;z-index:45;background:rgba(4,6,11,.98);display:none;
+    overflow-y:auto;padding:40px 4vw 60px}
+  #lsoverlay.open,#budgetoverlay.open{display:block}
+  #lsoverlay h2,#budgetoverlay h2{color:var(--gold);font-size:23px;margin-bottom:4px}
+  #lsoverlay .lsub,#budgetoverlay .bsub{color:var(--dim);font-size:12.5px;margin-bottom:18px;max-width:960px;line-height:1.65}
+  .lsgrid{display:grid;grid-template-columns:1fr;gap:22px;max-width:1200px}
+  @media(min-width:1000px){.lsgrid{grid-template-columns:1.4fr 1fr}}
+  .lscol h3{font-size:15px;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+  .lscol.long h3{color:var(--green)} .lscol.short h3{color:var(--red)}
+  .lsrow{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:12px;padding:12px 15px;margin-bottom:10px;cursor:pointer;transition:all .15s}
+  .lsrow:hover{border-color:var(--accent)}
+  .lsrow .top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .lsrow .rk{font-family:var(--mono);color:var(--dim);font-size:12px;margin-right:6px}
+  .lsrow .nm{font-weight:700;font-size:14.5px}
+  .lsrow .sub{font-size:10.5px;color:var(--dim);margin-top:1px}
+  .lsrow .big3{font-family:var(--mono);font-size:20px;font-weight:700}
+  .lscol.long .big3{color:var(--green)} .lscol.short .big3{color:var(--red)}
+  .lsrow .small3{font-size:9.5px;color:var(--dim);text-align:right}
+  .lsbars{display:flex;gap:4px;margin-top:9px;flex-wrap:wrap}
+  .lsbar{flex:1;min-width:60px}
+  .lsbar .bl{font-size:8.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}
+  .lsbar .bt{height:4px;background:#141a2a;border-radius:2px;overflow:hidden}
+  .lsbar .bf{height:100%;border-radius:2px}
+  .lsrow .expl{font-size:11px;line-height:1.5;color:#9fb0c9;margin-top:8px}
+  .lswarn{font-size:9px;font-weight:700;color:var(--gold);background:rgba(255,201,77,.12);padding:1px 6px;border-radius:7px;margin-left:6px}
+  .avoidrow{background:rgba(255,93,115,.05);border:1px solid rgba(255,93,115,.2);border-radius:9px;padding:8px 12px;margin-bottom:7px;font-size:11.5px;color:#d8a5ae;line-height:1.5}
+  .avoidrow b{color:#ff8095}
+  /* budget thesis */
+  .flowbox{font-family:var(--mono);font-size:12px;line-height:1.9;color:#9db4d8;background:rgba(77,163,255,.05);
+    border:1px solid var(--border);border-radius:12px;padding:16px 20px;max-width:640px;margin:14px 0}
+  .flowbox .ar{color:var(--gold)}
+  .themegrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;max-width:1200px;margin:14px 0}
+  .themecard{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:13px 16px}
+  .themecard .th{display:flex;justify-content:space-between;align-items:baseline}
+  .themecard .tn{font-weight:700;font-size:13.5px}
+  .themecard .gs{font-family:var(--mono);font-weight:700;font-size:15px}
+  .themecard .gt{height:5px;background:#141a2a;border-radius:3px;margin:7px 0;overflow:hidden}
+  .themecard .gf{height:100%;border-radius:3px}
+  .themecard .td{font-size:11px;color:#a8b2c6;line-height:1.5;margin-top:4px}
+  .themecard .picks{font-size:10.5px;color:var(--dim);margin-top:6px}
+  .themecard .picks b{color:var(--green)}
+
   #bankoverlay{position:fixed;inset:0;z-index:43;background:rgba(4,6,11,.97);display:none;
     overflow-y:auto;padding:40px 5vw 60px}
   #bankoverlay.open{display:block}
@@ -247,7 +290,9 @@
   <div class="sector" id="d-sector"></div>
   <div class="price" id="d-price"></div>
   <div id="d-scores"></div>
+  <div id="d-lsscore"></div>
   <div id="d-math"></div>
+  <div id="d-scen"></div>
   <div id="d-tech"></div>
   <div id="d-week"></div>
   <div id="d-hold"></div>
@@ -276,6 +321,8 @@
     <button id="rankbtn" style="color:var(--accent);border-color:rgba(77,163,255,.4)">🏆 Rank Table</button>
     <button id="bankbtn" style="color:#b28bff;border-color:rgba(178,139,255,.4)">🏦 Banker Checklist</button>
     <button id="calcbtn" style="color:#53e0d0;border-color:rgba(83,224,208,.4)">💰 Calculator</button>
+    <button id="lsbtn" style="color:#4dd07a;border-color:rgba(77,208,122,.5);font-weight:700">⚖️ Long / Short Board</button>
+    <button id="budgetbtn" style="color:#ff9d5c;border-color:rgba(255,157,92,.4)">🇮🇳 Budget Thesis</button>
   </div>
   <span id="hint">drag = orbit · scroll = zoom · hover = info · click = details</span>
 </div>
@@ -349,6 +396,41 @@
   may never re-rate if the reason it&#8217;s cheap turns out to be real (AI for IT, energy transition for coal). Keep
   each position ≤5%, and follow the sell rules: 15+ sessions below the 200-DMA, any promoter pledge appears,
   promoter sells more than 2%, or the composite score decays below ~55. Not SEBI-registered investment advice.</div>
+</div>
+
+<div id="lsoverlay">
+  <span class="close2" id="lsclose">✕ close</span>
+  <h2>⚖️ Long / Short Board — one blended confidence score</h2>
+  <div class="lsub" id="ls-sub"></div>
+  <div class="lsgrid">
+    <div class="lscol long"><h3>▲ Top 10 Long — highest conviction to OWN</h3><div id="ls-long"></div></div>
+    <div class="lscol short"><h3>▼ Top 5 Short / Avoid — highest conviction to NOT own</h3><div id="ls-short"></div>
+      <h3 style="margin-top:20px;color:var(--gold)">⚠ Avoid (great theme, bad price)</h3><div id="ls-avoid"></div>
+    </div>
+  </div>
+</div>
+
+<div id="budgetoverlay">
+  <span class="close2" id="budgetclose">✕ close</span>
+  <h2>🇮🇳 The Budget Thesis — 5 Union Budgets, one strategy</h2>
+  <div class="bsub">Reading FY2022-23 through FY2026-27 together, one pattern dominates: this government is
+  building India's physical infrastructure, strategic manufacturing and energy independence — government capital
+  expenditure first, private investment pulled behind it. It is a <b>build-the-country, replace-imports,
+  manufacture-and-export</b> strategy, not a consumption story. Each stock in this screener carries a POLICY
+  score (0-10, how directly it sits in this workflow) and its theme carries a GEOPOLITICS score (0-10, the
+  current mid-2026 tailwind). Both feed the Long score. Policy tells you where demand will develop — it never
+  replaces checking valuation, which is why several budget darlings sit on the Short board, not the Long one.</div>
+  <div class="flowbox">
+    Government capital expenditure<br><span class="ar">↓</span><br>
+    Roads · railways · power · defence · cities · water · ports<br><span class="ar">↓</span><br>
+    Demand for cement, steel, cables, transformers, machinery<br><span class="ar">↓</span><br>
+    Lower logistics &amp; electricity constraints<br><span class="ar">↓</span><br>
+    Private factories become viable  ·  PLI + tariffs + procurement<br><span class="ar">↓</span><br>
+    Imports replaced by Indian components<br><span class="ar">↓</span><br>
+    Indian manufacturing exports expand
+  </div>
+  <h3 style="color:var(--accent);font-size:15px;margin:22px 0 4px">The 10 themes, ranked by current geopolitical tailwind</h3>
+  <div class="themegrid" id="theme-grid"></div>
 </div>
 
 <div id="calcoverlay">
@@ -549,6 +631,7 @@ function openDetail(s){
       '<span class="bandchip band-'+cf.band+'">'+cf.band+'</span>'+
       '<div class="why">'+cf.why+'. Watch: '+cf.trigger+'.</div></div>';
   }
+  renderScenarios(s);
   renderTech(s);
   renderWeek(s);
   renderHolders(s);
@@ -580,6 +663,33 @@ function techHTML(s){
     'Range: '+fmt(s.pct_off_52w_high,'%')+' off 52w high · +'+fmt(s.pct_above_52w_low,'%')+' above 52w low · 6m '+fmt(s.ret_6m,'%')+' · 12m '+fmt(s.ret_12m,'%')+'<br>'+
     'Bollinger: <b>'+fmt(s.bb_pos)+'</b>/100 <span class="'+bbV[1]+'">'+bbV[0]+'</span> · Volume 20d/90d: <b>'+fmt(vr)+'</b> <span class="'+vrV[1]+'">'+vrV[0]+'</span><br>'+
     '<span class="lbl2">Volatility '+fmt(s.volatility_ann,'%')+'/yr · 200-DMA ₹'+fmt(s.dma200)+' · 50-DMA ₹'+fmt(s.dma50)+'</span>';
+}
+function renderScenarios(s){
+  const el=document.getElementById('d-scen'); const sc=s.scenarios;
+  const lel=document.getElementById('d-lsscore');
+  const sp=s.signal_parts||{};
+  if(s.long_score!=null){
+    const isShort=s.side==='short';
+    lel.innerHTML='<div style="background:'+(isShort?'rgba(255,93,115,.08)':'rgba(77,208,122,.08)')+
+      ';border-left:2px solid '+(isShort?'var(--red)':'var(--green)')+';padding:9px 12px;border-radius:0 8px 8px 0;margin:10px 0;font-size:12px">'+
+      '<b style="color:'+(isShort?'var(--red)':'var(--green)')+'">'+(isShort?'SHORT/AVOID score '+s.short_score:'LONG score '+s.long_score)+'</b> / 100'+
+      '<div style="font-family:var(--mono);font-size:10.5px;color:var(--dim);margin-top:3px">'+
+      'IVQM '+sp.ivqm+' · policy '+sp.policy+'/10 · geopolitics '+sp.geopolitics+'/10 · flow '+sp.flow+'/10'+
+      (sp.val_factor<1?' · P/E haircut ×'+sp.val_factor:'')+'</div></div>';
+  } else lel.innerHTML='';
+  if(!sc){ el.innerHTML=''; return; }
+  const row=function(nm,o,col){return '<tr><td style="color:'+col+';font-weight:700">'+nm+'</td>'+
+    '<td style="font-family:var(--mono);text-align:right">'+rup(o.px)+'</td>'+
+    '<td style="font-family:var(--mono);text-align:right;color:'+(o.ret>=0?'var(--green)':'var(--red)')+'">'+(o.ret>0?'+':'')+o.ret+'%</td>'+
+    '<td style="font-family:var(--mono);text-align:right;color:var(--dim)">'+Math.round(o.p*100)+'%</td></tr>';};
+  el.innerHTML='<div style="background:rgba(178,139,255,.06);border-left:2px solid #b28bff;padding:10px 12px;border-radius:0 8px 8px 0;margin:12px 0">'+
+    '<div style="font-weight:700;color:#b28bff;font-size:11px;letter-spacing:1px;margin-bottom:5px">SCENARIO ANALYSIS · probability-weighted (6-18mo)</div>'+
+    '<table style="width:100%;font-size:11.5px;border-collapse:collapse"><tr style="color:var(--dim);font-size:9.5px;text-transform:uppercase">'+
+    '<td>Case</td><td style="text-align:right">Target</td><td style="text-align:right">Return</td><td style="text-align:right">Prob</td></tr>'+
+    row('Bull',sc.bull,'var(--green)')+row('Base',sc.base,'var(--gold)')+row('Bear',sc.bear,'var(--red)')+'</table>'+
+    '<div style="margin-top:7px;font-size:12.5px">Expected value: <b style="font-family:var(--mono);font-size:15px;color:'+
+    (sc.expected_value_pct>=0?'var(--green)':'var(--red)')+'">'+(sc.expected_value_pct>0?'+':'')+sc.expected_value_pct+'%</b> '+
+    '<span style="color:var(--dim);font-size:10.5px">probability-weighted, dividends in bull/base</span></div></div>';
 }
 function renderTech(s){
   const h=techHTML(s);
@@ -894,6 +1004,94 @@ document.getElementById('calcbtn').addEventListener('click',function(){
   document.getElementById('calcoverlay').classList.add('open');});
 document.getElementById('calcclose').addEventListener('click',function(){
   document.getElementById('calcoverlay').classList.remove('open');});
+
+/* ---------- Long / Short board ---------- */
+const bySym = {}; stocks.forEach(function(s){ bySym[s.symbol]=s; });
+const THEME_LABEL = {power_transmission:'Power/Grid',defence:'Defence',electronics_semi:'Electronics/Semi',
+  critical_minerals:'Critical Minerals',railways:'Railways',shipbuilding_ports:'Shipbuilding/Ports',
+  nuclear:'Nuclear/Energy',biopharma:'Biopharma',roads_construction:'Roads/Construction',water:'Water',
+  energy:'Energy',financials:'Financials',it_services:'IT Services',consumer:'Consumer',other:'Other'};
+document.getElementById('ls-sub').innerHTML =
+  'LONG score = 40% IVQM (value+quality+momentum+safety) + 25% policy tailwind + 15% geopolitics + 20% smart-money flow, '+
+  'then haircut for extreme P/E so a great theme can’t rescue a terrible price. SHORT score = broken trend + expensive + no policy + money leaving + earnings/governance penalty. '+
+  'As of '+D.as_of+'. Educational, not advice — shorting India is hard (borrow cost, F&O-only, DII-cushioned bull tape).';
+
+function bar(label,val,max,color){
+  return '<div class="lsbar"><div class="bl">'+label+'</div><div class="bt"><div class="bf" style="width:'+
+    Math.min(100,100*val/max)+'%;background:'+color+'"></div></div></div>';
+}
+function longRow(sym,i){
+  const s=bySym[sym]; if(!s) return '';
+  const sp=s.signal_parts||{}, rich = (s.pe||0)>50;
+  return '<div class="lsrow" data-sym="'+sym+'"><div class="top"><div>'+
+    '<span class="rk">#'+(i+1)+'</span><span class="nm">'+sym+'</span>'+
+    (rich?'<span class="lswarn">RICH '+fmt(s.pe)+'x</span>':'')+
+    '<div class="sub">'+s.name+' · '+(THEME_LABEL[s.theme]||s.theme)+' · '+rup(s.price)+' · P/E '+fmt(s.pe)+'</div></div>'+
+    '<div style="text-align:right"><span class="big3">'+s.long_score+'</span><div class="small3">LONG score</div></div></div>'+
+    '<div class="lsbars">'+bar('IVQM '+sp.ivqm,sp.ivqm,100,'#ffc94d')+bar('Policy '+sp.policy,sp.policy,10,'#ff9d5c')+
+    bar('Geo '+sp.geopolitics,sp.geopolitics,10,'#4da3ff')+bar('Flow '+sp.flow,sp.flow,10,'#4dd07a')+'</div>'+
+    '<div class="expl">'+(s.thesis||'').slice(0,175)+'…</div></div>';
+}
+function shortRow(sym,i){
+  const s=bySym[sym]; if(!s) return '';
+  const sp=s.signal_parts||{};
+  return '<div class="lsrow" data-sym="'+sym+'"><div class="top"><div>'+
+    '<span class="rk">#'+(i+1)+'</span><span class="nm">'+sym+'</span>'+
+    '<div class="sub">'+s.name+' · P/E '+fmt(s.pe)+' · '+(THEME_LABEL[s.theme]||s.theme)+'</div></div>'+
+    '<div style="text-align:right"><span class="big3">'+s.short_score+'</span><div class="small3">SHORT score</div></div></div>'+
+    '<div class="lsbars">'+bar('Weak trend',100-sp.mom_pct,100,'#ff5d73')+bar('Expensive',100-sp.val_pct,100,'#ff5d73')+
+    bar('No policy',100-sp.policy100,100,'#ff9d5c')+bar('Money out',100-sp.flow100,100,'#b28bff')+'</div>'+
+    '<div class="expl">'+(s.thesis||'').slice(0,190)+'…</div></div>';
+}
+document.getElementById('ls-long').innerHTML = (D.long_board||[]).map(longRow).join('');
+document.getElementById('ls-short').innerHTML = (D.short_board||[]).map(shortRow).join('');
+document.getElementById('ls-avoid').innerHTML = (D.avoid_board||[]).map(function(sym){
+  const s=bySym[sym]; if(!s) return '';
+  return '<div class="avoidrow"><b>'+sym+'</b> — '+(THEME_LABEL[s.theme]||s.theme)+' · P/E '+fmt(s.pe)+
+    ' · long '+s.long_score+' / short '+s.short_score+'. Great theme, price leaves no margin of safety.</div>';
+}).join('') || '<div class="avoidrow">None flagged.</div>';
+document.querySelectorAll('#lsoverlay .lsrow').forEach(function(el){
+  el.addEventListener('click',function(){
+    document.getElementById('lsoverlay').classList.remove('open');
+    openDetail(bySym[el.dataset.sym]);});
+});
+document.getElementById('lsbtn').addEventListener('click',function(){document.getElementById('lsoverlay').classList.add('open');});
+document.getElementById('lsclose').addEventListener('click',function(){document.getElementById('lsoverlay').classList.remove('open');});
+
+/* ---------- Budget thesis ---------- */
+const THEME_DESC = {defence:'Record ₹7.85 lakh cr budget (+15%), 75% ring-fenced domestic, post-Sindoor procurement, ₹38k cr exports.',
+  nuclear:'SHANTI Act (Dec 2025) opened nuclear to private capital; ₹20k cr SMR mission; 90%+ crude-import dependence.',
+  power_transmission:'₹7.9 lakh cr grid capex to evacuate 500GW renewables by 2030 + AI data-centre load surging.',
+  biopharma:'Biopharma SHAKTI ₹10k cr; US BIOSECURE decoupling from China (WuXi) drives China+1 to Indian CRO/CDMO.',
+  critical_minerals:'China rare-earth curbs (~90% supply) + India’s ₹34k cr Critical Mineral Mission & magnet PLI.',
+  shipbuilding_ports:'₹25k cr Maritime Development Fund; Navy adds a warship every ~40 days; Red Sea disruption.',
+  roads_construction:'₹12.2 lakh cr FY27 capex (highest ever); NHAI 12,500 km target; Jal Jeevan to 2028.',
+  water:'Jal Jeevan Mission (₹8.69 lakh cr, to 2028) + ₹1 lakh cr Urban Challenge Fund.',
+  railways:'~₹2.7 lakh cr capex but only +2-4% (a plateau) — funding strong, growth-surprise gone.',
+  electronics_semi:'ISM 2.0 (+₹8k cr) but China rare-earth/gallium curbs are an active input HEADWIND. Two-sided.',
+  it_services:'HEADWIND — AI-led pricing cannibalization + Trump’s $100k H-1B fee; only a weak-INR offset.',
+  energy:'Energy security priority; crude-import dependence; refining/gas margins cycle-driven.',
+  financials:'Funds the whole cycle but not a direct build-the-country beneficiary.',
+  consumer:'Not a budget priority — consumption is not the government’s chosen engine.'};
+(function buildThemes(){
+  const geo=D.geopolitics||{};
+  const themes=Object.keys(geo).filter(function(k){return k!=='other';})
+    .sort(function(a,b){return geo[b]-geo[a];});
+  const colFor=function(g){return g>=8?'#4dd07a':(g>=6?'#ffc94d':(g>=4?'#ff9d5c':'#ff5d73'));};
+  document.getElementById('theme-grid').innerHTML = themes.map(function(th){
+    const g=geo[th];
+    const longs=(D.long_board||[]).filter(function(sy){return (bySym[sy]||{}).theme===th;});
+    const members=stocks.filter(function(s){return s.theme===th;}).map(function(s){return s.symbol;});
+    return '<div class="themecard"><div class="th"><span class="tn">'+(THEME_LABEL[th]||th)+'</span>'+
+      '<span class="gs" style="color:'+colFor(g)+'">'+g+'/10</span></div>'+
+      '<div class="gt"><div class="gf" style="width:'+(g*10)+'%;background:'+colFor(g)+'"></div></div>'+
+      '<div class="td">'+(THEME_DESC[th]||'')+'</div>'+
+      '<div class="picks">In screen: '+(members.join(', ')||'—')+
+      (longs.length?'<br><b>On Long board: '+longs.join(', ')+'</b>':'')+'</div></div>';
+  }).join('');
+})();
+document.getElementById('budgetbtn').addEventListener('click',function(){document.getElementById('budgetoverlay').classList.add('open');});
+document.getElementById('budgetclose').addEventListener('click',function(){document.getElementById('budgetoverlay').classList.remove('open');});
 
 /* ---------- loop ---------- */
 const clock=new THREE.Clock();

@@ -158,6 +158,101 @@ def score_stock(s, t, nifty_ret6):
     }
 
 
+def compute_signals(merged, geopolitics):
+    """Blend our engines into a single LONG_SCORE and SHORT_SCORE (0-100).
+
+    LONG  = 40% IVQM composite (value+quality+momentum+safety, our core engine)
+          + 25% policy tailwind (Union-Budget FY23-27 build-the-country alignment)
+          + 15% geopolitics (current mid-2026 theme tailwind)
+          + 20% smart-money flow (FII/DII/promoter accumulation)
+    SHORT = 30% broken/weak trend + 25% expensive + 20% no policy support
+          + 15% smart-money leaving + 10% earnings/governance penalty
+    The point: a great THEME at a terrible PRICE scores low on LONG and can score
+    high on SHORT. Value discipline is never overridden by narrative.
+    """
+    sc = merged["scores"]
+    ivqm = sc["composite"]
+    theme = merged.get("theme", "other")
+    policy = merged.get("policy", 3)
+    geo = geopolitics.get(theme, 5)
+    flow = (merged.get("holders") or {}).get("flow", 5)
+
+    policy100, geo100, flow100 = policy * 10, geo * 10, flow * 10
+    raw_long = 0.40 * ivqm + 0.25 * policy100 + 0.15 * geo100 + 0.20 * flow100
+    # Valuation guard — a great theme can't override a terrible price. Extreme P/E
+    # gets a hard haircut so cheap-and-good names rank above expensive darlings.
+    pe = merged.get("pe") or 0
+    if pe > 100:
+        val_factor = 0.70
+    elif pe > 70:
+        val_factor = 0.80
+    elif pe > 50:
+        val_factor = 0.88
+    elif pe > 35:
+        val_factor = 0.95
+    else:
+        val_factor = 1.0
+    long_score = round(raw_long * val_factor, 1)
+
+    mom_pct = sc["momentum"] / 25 * 100
+    val_pct = sc["value"] / 30 * 100
+    pe = merged.get("pe") or 0
+    penalty = 0
+    if (merged.get("profit_growth") or 0) < 0:
+        penalty += 45
+    if pe > 60:
+        penalty += 35
+    elif pe > 40:
+        penalty += 15
+    if (merged.get("pledged") or 0) > 0:
+        penalty += 20
+    short_score = round(0.30 * (100 - mom_pct) + 0.25 * (100 - val_pct)
+                        + 0.20 * (100 - policy100) + 0.15 * (100 - flow100)
+                        + 0.10 * min(100, penalty), 1)
+
+    merged["long_score"] = long_score
+    merged["short_score"] = short_score
+    merged["signal_parts"] = {
+        "ivqm": ivqm, "policy": policy, "geopolitics": geo, "flow": flow,
+        "policy100": policy100, "geo100": geo100, "flow100": flow100,
+        "val_factor": val_factor,
+        "mom_pct": round(mom_pct), "val_pct": round(val_pct), "penalty": min(100, penalty),
+    }
+
+
+def compute_scenarios(merged):
+    """Goldman-style probability-weighted bull/base/bear. A single target is a lie;
+    real desks quote a distribution. Base = our math; bull = re-rate + beat; bear =
+    multiple compression + earnings miss. Probabilities are tied to the blended
+    long_score (a high-conviction cheap name skews bullish; an expensive one skews bearish).
+    Expected value = the honest number to size a position on."""
+    m = merged.get("math")
+    price = merged.get("price")
+    if not m or not m.get("anchor") or not price:
+        return
+    eps, fair, g, div6 = m["anchor"], m["target_multiple"], m["growth_pct"], m.get("div_6m_pct", 0)
+    bear = eps * (1 + (g - 20) / 100) * (fair * 0.60)          # de-rate + earnings disappoint
+    base = m.get("implied_price", eps * (1 + g / 100) * fair)  # our central case
+    bull = eps * (1 + (g + 12) / 100) * (fair * 1.28)          # re-rate + beat
+    r = lambda px, d: round((px / price - 1) * 100 + d, 1)
+    bear_r, base_r, bull_r = r(bear, 0), r(base, div6), r(bull, div6)
+
+    ls01 = (merged.get("long_score", 50)) / 100
+    p_bull = round(0.15 + 0.35 * ls01, 2)
+    p_bear = round(0.15 + 0.35 * (1 - ls01), 2)
+    p_base = round(max(0.30, 1 - p_bull - p_bear), 2)
+    tot = p_bull + p_base + p_bear
+    p_bull, p_base, p_bear = p_bull / tot, p_base / tot, p_bear / tot
+    ev = round(p_bull * bull_r + p_base * base_r + p_bear * bear_r, 1)
+
+    merged["scenarios"] = {
+        "bear": {"px": round(bear), "ret": bear_r, "p": round(p_bear, 2)},
+        "base": {"px": round(base), "ret": base_r, "p": round(p_base, 2)},
+        "bull": {"px": round(bull), "ret": bull_r, "p": round(p_bull, 2)},
+        "expected_value_pct": ev,
+    }
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--offline", action="store_true", help="skip yfinance, reuse old technicals")
@@ -165,6 +260,7 @@ def main():
 
     fund = json.loads(FUND.read_text())
     stocks = fund["stocks"]
+    geopolitics = fund.get("geopolitics", {})
     symbols = [s["symbol"] for s in stocks]
 
     old = {}
@@ -217,24 +313,41 @@ def main():
             merged["math"]["downside_pct"] = round(downside, 1)
             merged["math"]["downside_ref"] = ref
             merged["math"]["risk_reward"] = round(merged["math"]["expected_total_pct"] / downside, 1)
+        compute_signals(merged, geopolitics)
+        compute_scenarios(merged)
         out_stocks.append(merged)
 
     out_stocks.sort(key=lambda x: -x["scores"]["composite"])
+    longs = sorted([s for s in out_stocks if s.get("side", "long") == "long"],
+                   key=lambda x: -x["long_score"])
+    shorts = sorted([s for s in out_stocks if s.get("side") == "short"],
+                    key=lambda x: -x["short_score"])
+    # A long-universe name that scores high as a short is an "avoid" caution.
+    avoids = sorted([s for s in out_stocks if s.get("side", "long") == "long" and s["short_score"] >= 62],
+                    key=lambda x: -x["short_score"])
     payload = {
         "as_of": datetime.date.today().isoformat(),
-        "universe": "NIFTY 500 — H1 2026 value screen",
+        "universe": "NIFTY 500 — value + Budget-thesis screen",
         "method": "IVQM composite: Value 30 · Quality 30 · Momentum 25 · Safety 15. Gold ring = top pick.",
         "nifty_ret_6m": nifty_ret6,
+        "geopolitics": geopolitics,
+        "long_board": [s["symbol"] for s in longs[:10]],
+        "short_board": [s["symbol"] for s in shorts[:5]],
+        "avoid_board": [s["symbol"] for s in avoids[:6]],
         "stocks": out_stocks,
     }
     OUT.write_text("// generated by scripts/refresh.py — do not edit by hand\n"
                    "window.STOCK_DATA = " + json.dumps(payload, indent=1) + ";\n")
     print(f"Wrote {OUT} — {len(out_stocks)} stocks, as of {payload['as_of']}")
-    for s in out_stocks:
-        flag = "★" if s.get("top_pick") else " "
-        print(f"  {flag} {s['symbol']:<12} composite {s['scores']['composite']:>3}  "
-              f"(V{s['scores']['value']} Q{s['scores']['quality']} "
-              f"M{s['scores']['momentum']} S{s['scores']['safety']})")
+    print(f"\nTOP 10 LONG (blended long_score):")
+    for s in longs[:10]:
+        print(f"  {s['symbol']:<12} LONG {s['long_score']:>5}  (ivqm {s['scores']['composite']} "
+              f"policy {s.get('policy','?')} geo {payload['geopolitics'].get(s.get('theme'),'?')} "
+              f"flow {(s.get('holders') or {}).get('flow','?')})")
+    print(f"\nTOP 5 SHORT / AVOID (short_score):")
+    for s in shorts[:5] or avoids[:5]:
+        print(f"  {s['symbol']:<12} SHORT {s['short_score']:>5}  PE {s.get('pe','?')} "
+              f"(mom {s['signal_parts']['mom_pct']} val {s['signal_parts']['val_pct']})")
 
 
 if __name__ == "__main__":
