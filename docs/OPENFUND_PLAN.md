@@ -74,10 +74,11 @@ cross-market portfolios ("I hold NALCO for India infra AND First Solar for US en
 Local dashboard + verified 20-stock dataset + reproducible pipelines. This is the reference
 implementation of "AI executed, human watched."
 
-### Phase 2 — Publish (1-2 sessions of work)
-- `git init` → GitHub `samcolibri/openfund` (public, MIT or AGPL-3.0 — AGPL recommended so
-  forks stay open). Sam explicitly wants this open source.
-- GitHub Pages hosting of the dashboard (it's already a static site).
+### Phase 2 — Publish ✅ STARTED 2026-07-13
+- ✅ `git init` + published PUBLIC: **github.com/samcolibri/openfund** (AGPL-3.0, Sam approved 2026-07-13)
+- ✅ GitHub Pages live: **https://samcolibri.github.io/openfund/**
+- Local dir `~/projects/nse-value-screener/` IS the repo clone (remote `origin` = github.com/samcolibri/openfund).
+  Update flow now: edit → refresh scripts → `git add -A && git commit && git push`.
 - GitHub Actions cron: nightly `refresh.py` + `build_history.py` + weekly `screen_universe.py`,
   auto-commit data, **PR-gated** (human merges = human watched).
 - `CONTRIBUTING.md`: how anyone adds a stock (fundamentals.json schema + verification rules:
